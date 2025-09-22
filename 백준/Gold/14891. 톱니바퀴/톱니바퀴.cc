@@ -1,96 +1,121 @@
-#include <iostream>
-#include <vector>
-#include <string>
-#include <cmath>
-
+#include <bits/stdc++.h>
 using namespace std;
 
-// 톱니바퀴 상태 저장 (4개, 각 8개의 톱니)
-int gears[4][8];
+#define For(i, n) for (int i = 0; i < n; i++)
+int dy[] = {-1, 0, 1, 0};
+int dx[] = {0, 1, 0, -1};
+int n, m, k;
+int Visit[4];
 
-// 특정 톱니바퀴를 회전시키는 함수
-void rotate(int idx, int dir) {
-    if (dir == 1) { // 시계 방향
-        int temp = gears[idx][7];
-        for (int i = 7; i > 0; i--) {
-            gears[idx][i] = gears[idx][i - 1];
-        }
-        gears[idx][0] = temp;
-    } else { // 반시계 방향
-        int temp = gears[idx][0];
-        for (int i = 0; i < 7; i++) {
-            gears[idx][i] = gears[idx][i + 1];
-        }
-        gears[idx][7] = temp;
+bool ableMove(int ny, int nx)
+{
+  if (ny < 0 || nx < 0 || ny >= n || ny >= m)
+    return false;
+
+  return true;
+}
+int a[4][8];
+
+void rotate(int idx, int dir)
+{
+  if (dir == 1)
+  {
+    // 시계방향 톱니 회전
+    int tem = a[idx][7];
+    for (int i = 7; i >= 1; i--)
+    {
+      a[idx][i] = a[idx][i - 1];
     }
+    a[idx][0] = tem;
+  }
+  else
+  {
+    // 반시계 방향 시계회전
+    int tem = a[idx][0];
+    for (int i = 0; i < 7; i++)
+    {
+      a[idx][i] = a[idx][i + 1];
+    }
+    a[idx][7] = tem;
+  }
 }
 
-int main() {
-    // 입출력 속도 향상
-    ios_base::sync_with_stdio(false);
-    cin.tie(NULL);
+// n극 = 1 , s극 = 0
+// 시계방향으로 위에서부터 0,1,2,3,4,5,6,7
+// idx번째 톱니바퀴에서 i번째 톱니의 상태 저장 (n , s)
+// 맞닿는 부분은 2 or 6
 
-    // 톱니바퀴 초기 상태 입력
-    for (int i = 0; i < 4; i++) {
-        string s;
-        cin >> s;
-        for (int j = 0; j < 8; j++) {
-            gears[i][j] = s[j] - '0'; // 0: N극, 1: S극
-        }
+void solve(int idx, int dir)
+{
+  // 처음에는 일단 돌기
+  Visit[idx] = 1;
+
+  int leftIsRotate = (a[idx][6] != a[idx - 1][2]);
+  int rightIsRotate = (a[idx][2] != a[idx + 1][6]);
+
+  // 이후 왼쪽 돌리기
+  if (idx > 0 && !Visit[idx - 1])
+  {
+    if (leftIsRotate)
+    {
+      // 다른 극이면 dir * -1
+
+      solve(idx - 1, dir * -1);
     }
+  }
 
-    int k;
-    cin >> k;
+  // 이후 오른쪽 돌리기
+  if (idx < 4 && !Visit[idx + 1])
+  {
+    // 극이 다르면 회전
 
-    while (k--) {
-        int idx, dir;
-        cin >> idx >> dir;
-        idx--; // 1-based index를 0-based로 변환
+    if (rightIsRotate)
+    {
+      // 다른 극이면 dir * -1
 
-        // 1. 회전 결정 단계
-        // 어떤 톱니가 어떤 방향으로 회전할지 미리 저장
-        // 0: 회전 안 함, 1: 시계, -1: 반시계
-        vector<int> rotation_dirs(4, 0);
-        rotation_dirs[idx] = dir;
-
-        // 왼쪽으로 회전 전파
-        for (int i = idx; i > 0; i--) {
-            // 현재 톱니(i)의 왼쪽 날(6번)과 왼쪽 톱니(i-1)의 오른쪽 날(2번) 비교
-            if (gears[i][6] != gears[i - 1][2]) {
-                rotation_dirs[i - 1] = -rotation_dirs[i]; // 반대 방향으로 회전
-            } else {
-                break; // 극이 같으면 연쇄 중단
-            }
-        }
-
-        // 오른쪽으로 회전 전파
-        for (int i = idx; i < 3; i++) {
-            // 현재 톱니(i)의 오른쪽 날(2번)과 오른쪽 톱니(i+1)의 왼쪽 날(6번) 비교
-            if (gears[i][2] != gears[i + 1][6]) {
-                rotation_dirs[i + 1] = -rotation_dirs[i]; // 반대 방향으로 회전
-            } else {
-                break; // 극이 같으면 연쇄 중단
-            }
-        }
-
-        // 2. 회전 실행 단계
-        // 결정된 정보에 따라 모든 톱니바퀴를 한 번에 회전
-        for (int i = 0; i < 4; i++) {
-            if (rotation_dirs[i] != 0) {
-                rotate(i, rotation_dirs[i]);
-            }
-        }
+      solve(idx + 1, dir * -1);
     }
+  }
 
-    // 최종 점수 계산
-    int sum = 0;
-    for (int i = 0; i < 4; i++) {
-        if (gears[i][0] == 1) { // 12시 방향이 S극(1)인 경우
-            sum += pow(2, i);
-        }
+  rotate(idx, dir);
+
+  Visit[idx] = 0;
+
+  return;
+}
+
+int main()
+{
+  string s;
+  for (int i = 0; i < 4; i++)
+  {
+    cin >> s;
+    for (int j = 0; j < 8; j++)
+    {
+      a[i][j] = s[j] - '0';
     }
+  }
 
-    cout << sum << endl;
+  cin >> k;
+  int idx, dir; // 1이면 시계 -1이면 반시계
+  while (k--)
+  {
+    cin >> idx >> dir;
 
-    return 0;
+    // dir = 1 or -1
+    solve(idx - 1, dir);
+  }
+
+  int sum = 0;
+  for (int idx = 0; idx < 4; idx++)
+  {
+    if (a[idx][0] == 0)
+      sum += 0;
+    else
+    {
+      sum += pow(2, idx);
+    }
+  }
+
+  cout << sum;
 }
