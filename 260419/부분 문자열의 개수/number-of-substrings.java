@@ -16,7 +16,7 @@ public class Main {
         while(str.indexOf(find) != -1)
         {
             cnt++;
-            str = str.substring(str.indexOf(find+1));
+            str = str.substring(str.indexOf(find)+1);
         }
 
 
