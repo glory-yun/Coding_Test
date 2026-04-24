@@ -12,6 +12,10 @@ public class Main {
 		int h = 11;
 		int m = 11;
 
+		if (d >= day && h >= hour && m > minute) {
+			System.out.println(-1);
+		}
+
 		int cnt = 0;
 
 		while (true) {
@@ -33,7 +37,6 @@ public class Main {
 			}
 		}
 
-		cnt = cnt == 0 ? -1 : cnt;
 		System.out.println(cnt);
 
 	}
