@@ -12,7 +12,7 @@ public class Main {
 		int h = 11;
 		int m = 11;
 
-		if (!(d <= day && h <= hour && m <= minute)) {
+		if (day < d || (day==d && hour < h) || (day==d && hour == h && minute < m)) {
 			System.out.println(-1);
 			return;
 		}
