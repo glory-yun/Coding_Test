@@ -14,6 +14,7 @@ public class Main {
 
 		if (d >= day && h >= hour && m > minute) {
 			System.out.println(-1);
+			return;
 		}
 
 		int cnt = 0;
